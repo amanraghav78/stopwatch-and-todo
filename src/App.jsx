@@ -1,6 +1,5 @@
 
 import './App.css'
-
 import React, { useState, useEffect } from 'react';
 
 const App = () => {
@@ -8,8 +7,6 @@ const App = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [todos, setTodos] = useState(() => JSON.parse(localStorage.getItem('todos')) || []);
   const [newTodo, setNewTodo] = useState('');
-  const [date, setDate] = useState(() => new Date().toLocaleDateString());
-  const [history, setHistory] = useState(() => JSON.parse(localStorage.getItem('history')) || []);
 
   useEffect(() => {
     localStorage.setItem('time', time);
@@ -18,10 +15,6 @@ const App = () => {
   useEffect(() => {
     localStorage.setItem('todos', JSON.stringify(todos));
   }, [todos]);
-
-  useEffect(() => {
-    localStorage.setItem('history', JSON.stringify(history));
-  }, [history]);
 
   useEffect(() => {
     let interval;
@@ -34,30 +27,6 @@ const App = () => {
     }
     return () => clearInterval(interval);
   }, [isRunning, time]);
-
-  useEffect(() => {
-    const handleNewDay = () => {
-      const newDate = new Date().toLocaleDateString();
-      setDate(newDate);
-
-      const completedTasks = todos.filter(todo => todo.completed).length;
-      const dayHistory = { date: newDate, completedTasks };
-      setHistory([...history, dayHistory]);
-
-      setTodos(prevTodos => prevTodos.map(todo => ({ ...todo, completed: todo.completed ? todo.completed : false })));
-    };
-
-    const now = new Date();
-    const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1, 0, 0, 0);
-    const timeUntilMidnight = midnight - now;
-
-    const midnightTimeout = setTimeout(() => {
-      handleNewDay();
-      setInterval(handleNewDay, 24 * 60 * 60 * 1000);
-    }, timeUntilMidnight);
-
-    return () => clearTimeout(midnightTimeout);
-  }, [todos, history]);
 
   const handleStartStop = () => {
     setIsRunning(!isRunning);
@@ -165,15 +134,6 @@ const App = () => {
       >
         Clear All
       </button>
-      <h2 className="text-2xl font-semibold mt-8 mb-4 text-white">History</h2>
-      <ul className="w-full max-w-md results">
-        {history.map((entry, index) => (
-          <li key={index} className="flex justify-between items-center p-4 mb-2 border rounded bg-gray-800 text-gray-300">
-            <span>{entry.date}</span>
-            <span>{entry.completedTasks} tasks completed</span>
-          </li>
-        ))}
-      </ul>
     </div>
   );
 };
